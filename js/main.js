@@ -64,6 +64,10 @@ if(matchMedia("(hover:hover)").matches){
   });
 }
 
+/* date picker: no past dates + readable date in the message */
+const fmtDate = (v) => v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? new Date(v + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "-";
+document.querySelectorAll("input[data-min-today]").forEach(i => { const t = new Date(); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); i.min = t.toISOString().slice(0, 10); });
+
 /* enquiry form -> WhatsApp */
 document.querySelectorAll("form.enq").forEach(f => f.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -72,7 +76,7 @@ document.querySelectorAll("form.enq").forEach(f => f.addEventListener("submit", 
   f.querySelectorAll("[required]").forEach(i => { const bad = !i.value.trim(); i.classList.toggle("err", bad); if(bad) ok = false; });
   if(d.phone && !/^[0-9+\-\s]{8,15}$/.test(d.phone.trim())){ f.phone.classList.add("err"); ok = false; }
   if(!ok){ toast("कृपया आवश्यक माहिती भरा / Please fill required fields"); return; }
-  const msg = `Hello ${BRAND}! 👋\n*New Enquiry*\n\n*Name:* ${d.name}\n*Phone:* ${d.phone}\n*City:* ${d.city || "-"}\n*Interested in:* ${d.product || "-"}\n*Quantity:* ${d.qty || "-"}\n*Message:* ${d.msg || "-"}`;
+  const msg = `Hello ${BRAND}! 👋\n*New Enquiry*\n\n*Name:* ${d.name}\n*Phone:* ${d.phone}\n*City:* ${d.city || "-"}\n*Interested in:* ${d.product || "-"}\n*Quantity:* ${d.qty || "-"}\n*Preferred date:* ${fmtDate(d.date)}\n*Message:* ${d.msg || "-"}`;
   openWA(msg); toast("Opening WhatsApp… ✅"); f.reset();
 }));
 document.querySelectorAll(".enq input,.enq select,.enq textarea").forEach(i => i.addEventListener("input", () => i.classList.remove("err")));
